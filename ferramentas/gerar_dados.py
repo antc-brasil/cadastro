@@ -1,31 +1,29 @@
-"""Gera dados.js (auditores) e mapa.js (contornos dos estados) para a página do Cadastro.
+"""Gera dados.js (auditores com certificação vigente) para a página do Cadastro.
+
+Fonte: aba "Publicação" da planilha Google de controle, publicada na Web como CSV
+(Arquivo > Compartilhar > Publicar na Web > aba Publicação > CSV). Essa aba é gerada por
+fórmula a partir da aba "Controle" e contém só as colunas públicas e só as linhas com
+situação "Vigente". A situação e as observações nunca saem da planilha.
 
 Uso:
-  python3 ferramentas/gerar_dados.py <planilha.xlsx> [--atualizado AAAA-MM] [--mapa brazil-states.geojson]
+  python3 ferramentas/gerar_dados.py --csv <URL ou caminho do CSV> [--mapa brazil-states.geojson]
 
-Requer: pip install openpyxl
-
-Fonte dos auditores: aba "MAPA - GRÁFICO" (tribunal, tipo, nome, turma),
-complementada pelo e-mail da aba "ANALÍTICO" (usado só internamente, para identificar
-o tribunal das indicações feitas pelo IRB; o e-mail NÃO é gravado em dados.js) (mesma ordem de linhas; o script
-confere nome + tribunal linha a linha e aborta se divergirem).
+Sem dependências externas (só a biblioteca padrão do Python).
+Se houver qualquer erro nos dados, o script não grava nada e termina com código 1:
+a versão publicada continua a anterior.
 """
+import argparse
+import csv
+import datetime
+import io
 import json
 import math
+import re
 import sys
+import unicodedata
+import urllib.request
+from pathlib import Path
 
-import openpyxl
-
-# Código bruto da planilha -> (sigla de exibição, UF, nome por extenso)
-TRIBUNAIS = {
-    "TCU": ("TCU", "DF", "Tribunal de Contas da União"),
-    "TCU/ONU": ("TCU", "DF", "Tribunal de Contas da União"),
-    "TCDF": ("TCDF", "DF", "Tribunal de Contas do Distrito Federal"),
-    "TCMBA": ("TCM-BA", "BA", "Tribunal de Contas dos Municípios do Estado da Bahia"),
-    "TCMGO": ("TCM-GO", "GO", "Tribunal de Contas dos Municípios do Estado de Goiás"),
-    "TCMSP": ("TCM-SP", "SP", "Tribunal de Contas do Município de São Paulo"),
-    "TCMRJ": ("TCM-RJ", "RJ", "Tribunal de Contas do Município do Rio de Janeiro"),
-}
 UF_NOME = {
     "AC": "Acre", "AL": "Alagoas", "AP": "Amapá", "AM": "Amazonas", "BA": "Bahia",
     "CE": "Ceará", "DF": "Distrito Federal", "ES": "Espírito Santo", "GO": "Goiás",
@@ -35,84 +33,74 @@ UF_NOME = {
     "RO": "Rondônia", "RR": "Roraima", "SC": "Santa Catarina", "SP": "São Paulo",
     "SE": "Sergipe", "TO": "Tocantins",
 }
-# Preposição correta no nome do TCE ("do Estado de/do/da ...")
-UF_PREP = {
+_PREP = {
     "AC": "do", "AL": "de", "AP": "do", "AM": "do", "BA": "da", "CE": "do", "ES": "do",
     "GO": "de", "MA": "do", "MT": "de", "MS": "de", "MG": "de", "PA": "do", "PB": "da",
     "PR": "do", "PE": "de", "PI": "do", "RJ": "do", "RN": "do", "RS": "do", "RO": "de",
     "RR": "de", "SC": "de", "SP": "de", "SE": "de", "TO": "do",
 }
-# Indicações feitas pelo IRB: o tribunal de origem é deduzido do domínio do e-mail
-DOMINIO = {"tce.pr.gov.br": "TCEPR", "tcmsp.tc.br": "TCMSP"}
-
-TIPOS = {"AOP": "Operacional", "CONFORMIDADE": "Conformidade", "FINANCEIRA": "Financeira"}
-TURMAS = {
-    "INGL25": ("ING25", "Inglês 2025"),
-    "ESP25": ("ESP25", "Espanhol 2025"),
-    "ING26": ("ING26", "Inglês 2026"),
-    "ESP26": ("ESP26", "Espanhol 2026"),
+# Os 33 Tribunais de Contas do Brasil: sigla -> (UF, nome). Deve coincidir com a aba "Listas".
+TRIBUNAIS = {
+    "TCU": ("DF", "Tribunal de Contas da União"),
+    "TCDF": ("DF", "Tribunal de Contas do Distrito Federal"),
+    **{f"TCE-{uf}": (uf, f"Tribunal de Contas do Estado {p} {UF_NOME[uf]}") for uf, p in _PREP.items()},
+    "TCM-BA": ("BA", "Tribunal de Contas dos Municípios do Estado da Bahia"),
+    "TCM-GO": ("GO", "Tribunal de Contas dos Municípios do Estado de Goiás"),
+    "TCM-PA": ("PA", "Tribunal de Contas dos Municípios do Estado do Pará"),
+    "TCM-RJ": ("RJ", "Tribunal de Contas do Município do Rio de Janeiro"),
+    "TCM-SP": ("SP", "Tribunal de Contas do Município de São Paulo"),
 }
-
-
-def tribunal(codigo, email):
-    if codigo.startswith("IRB"):
-        codigo = DOMINIO.get((email or "").split("@")[-1].lower(), codigo)
-    if codigo in TRIBUNAIS:
-        return TRIBUNAIS[codigo]
-    if codigo.startswith("TCE") and len(codigo) == 5:
-        uf = codigo[3:]
-        return (f"TCE-{uf}", uf, f"Tribunal de Contas do Estado {UF_PREP[uf]} {UF_NOME[uf]}")
-    raise ValueError(f"Tribunal não mapeado: {codigo}")
-
-
-def auditores(xlsx):
-    wb = openpyxl.load_workbook(xlsx, data_only=True)
-    mapa = list(wb["MAPA - GRÁFICO"].iter_rows(min_row=2, values_only=True))
-    anal = list(wb["ANALÍTICO"].iter_rows(min_row=2, values_only=True))
-    saida, tribs, vistos, pend = [], {}, set(), []
-    for m, a in zip(mapa, anal):
-        if not m[7]:
-            continue
-        if (m[7], m[5]) != (a[7], a[5]):
-            raise SystemExit(f"Linhas desalinhadas no ID {m[0]}: {m[7]!r} x {a[7]!r}")
-        emails = (a[8] or "").strip().lower().split()
-        email = emails[0] if emails else None
-        if not m[6]:
-            pend.append((m[0], m[7], "tipo de auditoria não informado", ""))
-        sigla, uf, nome_trib = tribunal(m[5], email)
-        chave = (normal(m[7]), sigla, m[8], m[6])
-        if chave in vistos:
-            pend.append((m[0], m[7], "linha duplicada (mesmo nome, tribunal, turma e tipo) — omitida", ""))
-            continue
-        vistos.add(chave)
-        tribs[sigla] = {"sigla": sigla, "uf": uf, "nome": nome_trib}
-        turma = TURMAS[m[8]]
-        saida.append({
-            "nome": " ".join(str(m[7]).split()),
-            "_email": email,  # só para o relatório de pendências; removido antes de gravar
-            "tribunal": sigla,
-            "turma": turma[0],
-            "tipo": TIPOS.get(m[6]),  # None = não informado na planilha
-            "_id": m[0],
-        })
-    # mesmo nome em mais de uma linha restante: pode ser legítimo (duas turmas) ou erro (tribunal/e-mail trocado)
-    por_nome = {}
-    for r in saida:
-        por_nome.setdefault(normal(r["nome"]), []).append(r)
-    for rs in por_nome.values():
-        if len(rs) > 1:
-            desc = " ; ".join(f'{r["tribunal"]}/{r["turma"]}/{r["tipo"]}/{r["_email"]}' for r in rs)
-            for r in rs:
-                pend.append((r["_id"], r["nome"], "nome repetido em outra linha — conferir", desc))
-    for r in saida:
-        del r["_id"], r["_email"]
-    return saida, sorted(tribs.values(), key=lambda t: t["sigla"]), {k: v for k, v in TURMAS.values()}, pend
+TIPOS = {"Conformidade", "Financeira", "Operacional"}
+TURMA = re.compile(r"^(Inglês|Espanhol|Francês|Árabe|Português) (20\d\d)$")
+COLUNAS = ["Nome", "Tribunal", "Turma", "Tipo de auditoria"]
 
 
 def normal(s):
-    import unicodedata
     s = unicodedata.normalize("NFD", " ".join(str(s).split()).lower())
     return "".join(c for c in s if not unicodedata.combining(c))
+
+
+def ler_csv(origem):
+    if re.match(r"^https?://", origem):
+        with urllib.request.urlopen(origem, timeout=60) as r:
+            texto = r.read().decode("utf-8-sig")
+    else:
+        texto = Path(origem).read_text(encoding="utf-8-sig")
+    return list(csv.reader(io.StringIO(texto)))
+
+
+def validar(linhas):
+    """Devolve (auditores, erros). Qualquer erro impede a publicação."""
+    erros = []
+    if not linhas or [c.strip() for c in linhas[0][:4]] != COLUNAS:
+        return [], [f"Cabeçalho inesperado: {linhas[0] if linhas else '(vazio)'}; esperado {COLUNAS}. "
+                    "Confira se a URL publicada é a da aba Publicação."]
+    auditores, vistos = [], {}
+    for n, lin in enumerate(linhas[1:], start=2):
+        lin = [c.strip() for c in lin] + [""] * 4
+        nome, trib, turma, tipo = (" ".join(lin[0].split()), lin[1], lin[2], lin[3])
+        if not any((nome, trib, turma, tipo)):
+            continue
+        if not nome:
+            erros.append(f"Linha {n}: nome vazio.")
+        if trib not in TRIBUNAIS:
+            erros.append(f"Linha {n} ({nome}): tribunal desconhecido {trib!r}.")
+        if not TURMA.match(turma):
+            erros.append(f"Linha {n} ({nome}): turma inválida {turma!r} (ex.: 'Inglês 2025').")
+        if tipo not in TIPOS:
+            erros.append(f"Linha {n} ({nome}): tipo de auditoria inválido {tipo!r}.")
+        chave = (normal(nome), trib, tipo)
+        if chave in vistos:
+            erros.append(f"Linha {n} ({nome}): repetida (mesmo nome, tribunal e tipo da linha {vistos[chave]}).")
+        vistos[chave] = n
+        auditores.append({"nome": nome, "tribunal": trib, "turma": turma, "tipo": tipo})
+    auditores.sort(key=lambda a: normal(a["nome"]))
+    return auditores, erros
+
+
+def ordem_turma(t):
+    lingua, ano = TURMA.match(t).groups()
+    return (ano, lingua)
 
 
 # ---------- mapa ----------
@@ -170,41 +158,43 @@ def mapa(geojson):
     return {"largura": LARG, "altura": round(alt), "estados": estados}
 
 
+
 if __name__ == "__main__":
-    import argparse
-    import csv
-    import datetime
-    from pathlib import Path
-
-    ap = argparse.ArgumentParser(description="Gera dados.js (e, opcionalmente, mapa.js) do Cadastro.")
-    ap.add_argument("planilha", type=Path, help="planilha .xlsx com as abas MAPA - GRÁFICO e ANALÍTICO")
-    ap.add_argument("--atualizado", default=datetime.date.today().strftime("%Y-%m"),
-                    help="mês de referência dos dados, AAAA-MM (padrão: mês atual)")
-    ap.add_argument("--mapa", type=Path, metavar="GEOJSON",
-                    help="regera mapa.js a partir de um GeoJSON de UFs (raramente necessário)")
+    ap = argparse.ArgumentParser(description="Gera dados.js do Cadastro a partir da aba Publicação.")
+    ap.add_argument("--csv", required=True, help="URL publicada (CSV) da aba Publicação, ou caminho de um CSV local")
+    ap.add_argument("--mapa", type=Path, metavar="GEOJSON", help="regera mapa.js (raramente necessário)")
     args = ap.parse_args()
+    raiz = Path(__file__).resolve().parent.parent
 
-    raiz = Path(__file__).resolve().parent.parent  # raiz do repositório
-    lista, tribs, turmas, pend = auditores(args.planilha)
+    auditores, erros = validar(ler_csv(args.csv))
+    if erros:
+        print("Dados NÃO publicados. Corrija na aba Controle da planilha:", *erros, sep="\n  ", file=sys.stderr)
+        sys.exit(1)
 
-    # O relatório de pendências contém dados para conferência: fica ao lado da planilha, FORA do repositório
-    rel = args.planilha.resolve().parent / "pendencias_validacao.csv"
-    with open(rel, "w", encoding="utf-8-sig", newline="") as f:
-        w = csv.writer(f, delimiter=";")
-        w.writerow(["ID planilha", "Nome", "Pendência", "Detalhe"])
-        w.writerows(sorted(pend, key=lambda p: (p[2], p[0])))
-    print(len(pend), "pendências em", rel)
+    destino = raiz / "dados.js"
+    hoje = datetime.date.today().isoformat()
+    atualizado = hoje
+    if destino.exists():  # mantém a data anterior se a lista não mudou (evita commits diários vazios)
+        txt = destino.read_text(encoding="utf-8")
+        anterior = json.loads(txt[txt.index("{"):txt.rindex("}") + 1])
+        if anterior.get("auditores") == auditores:
+            atualizado = anterior.get("atualizado", hoje)
 
-    with open(raiz / "dados.js", "w", encoding="utf-8") as f:
-        f.write("/* Cadastro Nacional de Auditores de Controle Externo Certificados — dados gerados por gerar_dados.py.\n"
-                "   DADOS PRELIMINARES, EM VALIDAÇÃO. Não editar à mão: regenerar a partir da planilha. */\n")
-        f.write("window.CADASTRO = " + json.dumps(
-            {"atualizado": args.atualizado, "turmas": turmas, "tribunais": tribs, "auditores": lista},
-            ensure_ascii=False, indent=1) + ";\n")
-    print(len(lista), "auditores;", len(tribs), "tribunais →", raiz / "dados.js")
+    turmas = sorted({a["turma"] for a in auditores}, key=ordem_turma)
+    dados = {
+        "atualizado": atualizado,
+        "turmas": {t: t for t in turmas},
+        "tribunais": [{"sigla": s, "uf": uf, "nome": nome} for s, (uf, nome) in sorted(TRIBUNAIS.items())],
+        "auditores": auditores,
+    }
+    destino.write_text(
+        "/* Cadastro Nacional de Auditores de Controle Externo Certificados: auditores com certificação vigente.\n"
+        "   Gerado por ferramentas/gerar_dados.py a partir da planilha de controle. Não editar à mão. */\n"
+        "window.CADASTRO = " + json.dumps(dados, ensure_ascii=False, indent=1) + ";\n", encoding="utf-8")
+    print(f"{len(auditores)} auditores com certificação vigente; atualizado em {atualizado}")
 
     if args.mapa:
-        with open(raiz / "mapa.js", "w", encoding="utf-8") as f:
-            f.write("/* Contornos simplificados das UFs (fonte: IBGE via codeforamerica/click_that_hood). */\n")
-            f.write("window.MAPA_BR = " + json.dumps(mapa(args.mapa), ensure_ascii=False) + ";\n")
+        (raiz / "mapa.js").write_text(
+            "/* Contornos simplificados das UFs (fonte: IBGE via codeforamerica/click_that_hood). */\n"
+            "window.MAPA_BR = " + json.dumps(mapa(args.mapa), ensure_ascii=False) + ";\n", encoding="utf-8")
         print("mapa.js regerado")
