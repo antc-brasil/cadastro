@@ -182,8 +182,8 @@
     <a class="voltar" href="https://www.antcbrasil.org.br/">← Voltar ao site da ANTC</a>
     <p class="lema">ANTC · Auditor forte, controle externo forte</p>
     <h1><span>Cadastro</span> Nacional<small>de Auditores de Controle Externo Certificados</small></h1>
-    <p class="chamada">Os auditores de controle externo dos Tribunais de Contas brasileiros que participam da certificação
-      internacional PESA, da INTOSAI Development Initiative (IDI), reunidos em um só lugar.</p>
+    <p class="chamada">Os auditores de controle externo dos Tribunais de Contas brasileiros com certificação internacional
+      PESA vigente, concedida pela INTOSAI Development Initiative (IDI), reunidos em um só lugar.</p>
     <p class="chamada-2">Instituído pelo Acordo de Cooperação Técnica entre o TCU, o IRB e a ANTC, o Cadastro acompanha a
       evolução das certificações nos Tribunais de Contas e aproxima os profissionais certificados em uma rede nacional.</p>
     <div class="botoes">
@@ -198,10 +198,11 @@
     <div><b id="n-aud">–</b><span>Auditores</span></div>
     <div><b id="n-trib">–</b><span>Tribunais de Contas</span></div>
     <div><b id="n-uf">–</b><span>Unidades da Federação</span></div>
-    <div><b id="n-turma">–</b><span>Turmas (inglês e espanhol)</span></div>
+    <div><b id="n-turma">–</b><span>Turmas de origem</span></div>
   </div>
-  <p class="aviso"><strong>Dados preliminares.</strong> A relação abaixo reúne os auditores indicados às turmas do PESA
-    de 2025 e 2026 e está em validação junto ao IRB e ao TCU. Encontrou alguma incorreção? Escreva para a ANTC.</p>
+  <p class="aviso"><strong>Somente certificações vigentes.</strong> Constam do Cadastro os auditores com certificação PESA
+    vigente, confirmada pela ANTC em articulação com o TCU e o IRB. A manutenção da certificação exige formação continuada
+    anual, conforme a política da IDI. Encontrou alguma incorreção? Escreva para a ANTC.</p>
 
   <!-- ================= MAPA ================= -->
   <section id="mapa-sec">
@@ -351,14 +352,16 @@
   // contagens
   const porTrib = {}, porUF = {};
   auditores.forEach(a => { porTrib[a.tribunal] = (porTrib[a.tribunal] || 0) + 1; porUF[a.uf] = (porUF[a.uf] || 0) + 1; });
-  const maxUF = Math.max(...Object.values(porUF)), maxTrib = Math.max(...Object.values(porTrib));
+  const maxUF = Math.max(1, ...Object.values(porUF)), maxTrib = Math.max(1, ...Object.values(porTrib));
+  const VAZIO = "Os primeiros auditores certificados serão publicados após a divulgação dos resultados dos exames do PESA.";
 
   $("#n-aud").textContent = auditores.length;
   $("#n-trib").textContent = Object.keys(porTrib).length;
   $("#n-uf").textContent = Object.keys(porUF).length;
   $("#n-turma").textContent = Object.keys(D.turmas).length;
-  const [ano, mes] = D.atualizado.split("-");
-  $("#atualizado").textContent = new Date(+ano, +mes - 1).toLocaleDateString("pt-BR", { month: "long", year: "numeric" });
+  const [ano, mes, dia] = D.atualizado.split("-");
+  $("#atualizado").textContent = new Date(+ano, +mes - 1, +(dia || 1)).toLocaleDateString("pt-BR",
+    dia ? { day: "numeric", month: "long", year: "numeric" } : { month: "long", year: "numeric" });
   $("#ano").textContent = new Date().getFullYear();
 
   // ---------- estado da interface ----------
@@ -436,6 +439,8 @@
         <ul class="lista-trib">${lista.map(linhaTrib).join("")}</ul>
         <button type="button" class="limpar" id="limpar-uf">← Ver todos os estados</button>`;
       $("#limpar-uf").onclick = () => selecionarUF("");
+    } else if (!auditores.length) {
+      p.innerHTML = `<span class="rot">Brasil</span><h3>Tribunais de Contas</h3><p>${VAZIO}</p>`;
     } else {
       p.innerHTML = `<span class="rot">Brasil</span><h3>Tribunais de Contas</h3>
         <p>Auditores por tribunal. Clique em um tribunal para ver a lista ou selecione um estado no mapa.</p>
@@ -485,7 +490,7 @@
         <td data-r="Tribunal"><span class="selo" title="${esc(trib[a.tribunal].nome)}">${esc(a.tribunal)}</span></td>
         <td data-r="Turma">${esc(D.turmas[a.turma])}</td>
         <td data-r="Tipo">${a.tipo ? esc(a.tipo) : '<span class="nd">não informado</span>'}</td></tr>`).join("")
-      : `<tr><td colspan="4" class="vazio">Nenhum auditor encontrado com esses filtros.</td></tr>`;
+      : `<tr><td colspan="4" class="vazio">${auditores.length ? "Nenhum auditor encontrado com esses filtros." : VAZIO}</td></tr>`;
   }
 
   desenharPainel(); desenharLista();

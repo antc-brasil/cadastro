@@ -2,59 +2,66 @@
 
 Página pública do Cadastro mantido pela ANTC, nos termos do Acordo de Cooperação Técnica
 TCU–IRB–ANTC (cláusula quinta), com os auditores dos Tribunais de Contas brasileiros
-que participam da certificação **PESA** (Professional Education for SAI Auditors), da IDI/INTOSAI.
+com certificação **PESA** (Professional Education for SAI Auditors), da IDI/INTOSAI, **vigente**.
 
 Endereço previsto: **https://cadastro.antcbrasil.org.br/** (ajustar se for escolhido outro subdomínio).
+Endereço provisório: https://antc-brasil.github.io/cadastro/
 
 - **Página:** `index.html` (layout, mapa e filtros) + `dados.js` (auditores) + `mapa.js` (contornos das UFs).
   Arquivos estáticos, sem servidor.
-- **Dados:** gerados **localmente** por `ferramentas/gerar_dados.py` a partir da planilha do IRB.
-  A planilha **não** fica no repositório (contém telefone, gênero e dados dos coaches; ver `.gitignore`).
-  Só os campos divulgados vão para `dados.js`: nome, Tribunal de Contas, turma e tipo de auditoria.
-  O e-mail é lido apenas para identificar o tribunal das indicações feitas pelo IRB e **não** é publicado.
-- **Hospedagem:** GitHub Pages. O workflow `.github/workflows/publicar.yml` publica a cada push na `main`.
+- **Dados:** planilha Google de controle da ANTC (fora deste repositório). Só são publicados
+  nome, Tribunal de Contas, turma e tipo de auditoria dos auditores com situação **Vigente**.
+- **Hospedagem:** GitHub Pages. O workflow `.github/workflows/publicar.yml` lê a planilha todo dia
+  às 6h (Brasília), a cada push na `main` e quando acionado à mão (*Actions → Publicar cadastro → Run workflow*).
 
-## Atualizar os dados
+## Planilha de controle
+
+A planilha pertence à conta Google institucional da ANTC (Workspace `antcbrasil.org.br`).
+
+| Aba | Conteúdo | Publicada? |
+|---|---|---|
+| **Controle** | Todos os auditores: nome, tribunal, turma, tipo, ano de certificação, **situação** (Em formação, Vigente, Expirada), última verificação e observações | Não |
+| **Publicação** | Fórmula `QUERY` sobre a Controle: só as 4 colunas públicas e só as linhas **Vigente**. Não editar | Sim, como CSV |
+| **Listas** | Siglas dos 33 Tribunais de Contas, turmas, tipos e situações que alimentam as listas suspensas | Não |
+
+Para incluir, certificar ou retirar um auditor, edite **apenas a aba Controle**. A página reflete a mudança
+na próxima execução do workflow (no máximo em 24 horas, ou na hora, com *Run workflow*).
+
+Nova turma: acrescente na aba **Listas** (coluna Turma) no formato `Idioma AAAA`, por exemplo `Inglês 2027`.
+
+## O que o workflow faz
+
+1. baixa a aba **Publicação** (variável `PLANILHA_CSV`, em *Settings → Secrets and variables → Actions → Variables*);
+2. valida cada linha: tribunal entre os 33 conhecidos, turma no formato `Idioma AAAA`, tipo de auditoria válido,
+   sem linhas repetidas;
+3. **se houver qualquer erro, para sem publicar** (a versão no ar continua a anterior) e mostra o motivo no log;
+4. se a lista mudou, grava o novo `dados.js` no repositório (commit automático, que serve de histórico);
+5. publica a página.
+
+Para testar localmente:
 
 ```bash
-pip install openpyxl
-python3 ferramentas/gerar_dados.py "/caminho/da/planilha.xlsx" --atualizado 2026-10
+python3 ferramentas/gerar_dados.py --csv "URL-ou-caminho-do-CSV"
+python3 -m http.server 8000
 ```
 
-O script:
-
-1. lê a aba **MAPA - GRÁFICO** e confere, pela aba **ANALÍTICO**, o e-mail (uso interno) (aborta se as linhas não baterem);
-2. omite linhas duplicadas exatas (mesmo nome, tribunal, turma e tipo);
-3. grava `dados.js` na raiz deste repositório;
-4. grava `pendencias_validacao.csv` **ao lado da planilha** (fora do repositório) para conferência.
-
-Depois, revise a página localmente (`python3 -m http.server` nesta pasta e abra http://localhost:8000),
-faça commit **apenas** de `dados.js` e envie. A publicação leva cerca de 1 minuto.
-
-> Atenção: num repositório público, o histórico do git guarda todas as versões enviadas.
-> Confira os dados **antes** do envio; apagar um dado depois não o remove do histórico.
-
-Novos tribunais ou turmas: incluir em `TRIBUNAIS`/`TURMAS` no início de `gerar_dados.py`
-(o script aborta e avisa quando encontra um código desconhecido).
+> Atenção: num repositório público, o histórico do git guarda todas as versões de `dados.js`.
+> Confira a aba Controle antes de marcar alguém como Vigente.
 
 ## Implantação (uma única vez)
 
-1. **GitHub:** na organização `antc-brasil`, criar o repositório público `cadastro` com o conteúdo desta pasta.
-2. **Pages:** em *Settings → Pages* do repositório, origem **GitHub Actions**. O primeiro push publica em
-   https://antc-brasil.github.io/cadastro/ (endereço provisório, bom para conferir).
-3. **Verificar o domínio** na organização (*Settings → Pages → Add a domain*). Se for verificado
+1. **GitHub:** repositório público `antc-brasil/cadastro` (feito).
+2. **Pages:** em *Settings → Pages*, origem **GitHub Actions** (feito).
+3. **Planilha:** na planilha de controle, *Arquivo → Compartilhar → Publicar na Web*, escolher a aba **Publicação**
+   e o formato **CSV**. Copiar a URL gerada para a variável `PLANILHA_CSV` do repositório.
+4. **Verificar o domínio** na organização (*Settings → Pages → Add a domain*). Se for verificado
    `antcbrasil.org.br` inteiro, os subdomínios futuros não precisarão de nova verificação. O GitHub informa o TXT.
-4. **DNS de antcbrasil.org.br** (pedido à Trídia):
+5. **DNS de antcbrasil.org.br** (pedido à Trídia):
 
    | Tipo  | Nome                                 | Valor                         |
    |-------|--------------------------------------|-------------------------------|
    | CNAME | `cadastro`                           | `antc-brasil.github.io.`      |
-   | TXT   | *(o que o GitHub indicar no passo 3)* | *(valor informado pelo GitHub)* |
+   | TXT   | *(o que o GitHub indicar no passo 4)* | *(valor informado pelo GitHub)* |
 
    Com os registros no ar: **Verify** na organização → *Custom domain* no repositório → **Enforce HTTPS**.
-5. **Site da ANTC:** botão ou banner "Cadastro Nacional de Auditores Certificados" com link para a página.
-
-## Antes da primeira publicação
-
-- [ ] Planilha validada com o IRB/TCU (ver `pendencias_validacao.csv`).
-- [x] Padronização da grafia dos nomes (`formatarNome` em `index.html`).
+6. **Site da ANTC:** botão ou banner "Cadastro Nacional de Auditores Certificados" com link para a página.
