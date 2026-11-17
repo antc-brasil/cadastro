@@ -1,16 +1,19 @@
-# Publica a página do Cadastro no GitHub Pages.
+# Atualiza dados.js a partir da planilha de controle e publica a página no GitHub Pages.
 # Em Settings > Pages, a origem ("Source") deve ser "GitHub Actions".
-# Não há etapa de geração aqui: dados.js é gerado localmente a partir da planilha
-# (que nunca vem para o repositório), e o workflow só publica os arquivos prontos.
+# Em Settings > Secrets and variables > Actions > Variables, a variável PLANILHA_CSV deve conter
+# a URL da aba "Publicação" publicada na Web como CSV. Sem ela, publica o dados.js do repositório.
 name: Publicar cadastro
 
 on:
   push:
     branches: [main]
   workflow_dispatch:
+  # Lê a planilha todo dia às 6h de Brasília (9h UTC)
+  schedule:
+    - cron: "0 9 * * *"
 
 permissions:
-  contents: read
+  contents: write   # para gravar o dados.js atualizado no repositório
   pages: write
   id-token: write
 
@@ -26,6 +29,26 @@ jobs:
       url: ${{ steps.deploy.outputs.page_url }}
     steps:
       - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      # Se a planilha tiver erro (tribunal, turma ou tipo inválido, linha repetida), o job para aqui
+      # e a versão publicada continua a anterior. O motivo aparece no log desta etapa.
+      - name: Ler a planilha e gerar dados.js
+        if: ${{ vars.PLANILHA_CSV != '' }}
+        env:
+          PLANILHA_CSV: ${{ vars.PLANILHA_CSV }}
+        run: python3 ferramentas/gerar_dados.py --csv "$PLANILHA_CSV"
+      # Grava no histórico só quando a lista de auditores mudou
+      - name: Registrar alteração de dados.js
+        run: |
+          if ! git diff --quiet -- dados.js; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add dados.js
+            git commit -m "Atualiza auditores certificados a partir da planilha"
+            git push
+          fi
       # Publica só o que a página usa (ferramentas/ e README ficam de fora)
       - run: mkdir _site && cp index.html dados.js mapa.js _site/
       - uses: actions/upload-pages-artifact@v5
