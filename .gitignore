@@ -1,0 +1,12 @@
+# Planilhas e relatórios contêm dados pessoais (telefone, gênero, coach) — NUNCA versionar.
+*.xlsx
+*.xls
+*.csv
+~$*
+
+# Arquivos de sistema e do Python
+.DS_Store
+__pycache__/
+*.pyc
+.venv/
+venv/
