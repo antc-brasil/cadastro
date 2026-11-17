@@ -1,0 +1,495 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cadastro Nacional de Auditores Certificados — ANTC</title>
+<meta name="description" content="Cadastro Nacional de Auditores de Controle Externo Certificados pelo PESA (IDI/INTOSAI), mantido pela ANTC em cooperação com o TCU e o IRB.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --azul: #28285b;        /* cabeçalho/rodapé e títulos, como no Acervo */
+    --azul-2: #3a3a78;
+    --ambar: #f7ad03;
+    --ambar-claro: #fdefc7;
+    --ambar-escuro: #8a5f00;
+    --fundo: #f3f3f7;
+    --cartao: #ffffff;
+    --texto: #252525;
+    --texto-2: #5a5a6e;
+    --linha: #e0e0ea;
+    --lilas: #c9c9e3;
+    --raio: 10px;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; background: var(--fundo); color: var(--texto);
+    font: 16px/1.55 Lato, "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+  a { color: var(--azul-2); }
+  .conteudo { max-width: 1120px; margin: 0 auto; padding: 0 16px; }
+
+  /* ---------- cabeçalho ---------- */
+  header { background: var(--azul); color: #fff; padding: 18px 0 64px; }
+  .voltar { color: var(--lilas); font-size: .88rem; text-decoration: none; }
+  .voltar:hover { color: #fff; }
+  .lema { margin: 28px 0 4px; font-size: .78rem; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; color: var(--lilas); }
+  h1 { margin: 0; font-size: clamp(1.9rem, 4.6vw, 2.8rem); font-weight: 900; line-height: 1.08;
+    text-transform: uppercase; letter-spacing: .01em; }
+  h1 span { color: var(--ambar); }
+  h1 small { display: block; font-size: .5em; font-weight: 900; color: #fff; letter-spacing: .03em; margin-top: 6px; }
+  .chamada { max-width: 760px; margin: 18px 0 6px; font-size: 1.05rem; font-weight: 700; }
+  .chamada-2 { max-width: 760px; margin: 0 0 22px; font-size: .9rem; color: var(--lilas); }
+  .botoes { display: flex; flex-wrap: wrap; gap: 12px; }
+  .btn { display: inline-block; padding: 10px 22px; border-radius: 999px; font-weight: 900; font-size: .8rem;
+    letter-spacing: .04em; text-transform: uppercase; text-decoration: none; border: 2px solid var(--ambar); }
+  .btn-cheio { background: var(--ambar); color: var(--azul); }
+  .btn-cheio:hover { background: #ffc12e; }
+  .btn-vazado { color: #fff; border-color: #fff; }
+  .btn-vazado:hover { background: rgba(255,255,255,.1); }
+
+  /* ---------- números ---------- */
+  .numeros { margin-top: -40px; background: var(--cartao); border-radius: var(--raio);
+    box-shadow: 0 2px 10px rgba(40,40,91,.08); display: grid; grid-template-columns: repeat(4, 1fr); }
+  .numeros div { padding: 18px 20px; border-left: 1px solid var(--linha); }
+  .numeros div:first-child { border-left: 0; }
+  .numeros b { display: block; font-size: 2rem; font-weight: 900; color: var(--azul); line-height: 1.1; }
+  .numeros span { font-size: .78rem; font-weight: 700; color: var(--texto-2); text-transform: uppercase; letter-spacing: .04em; }
+
+  .aviso { margin: 18px 0 0; padding: 12px 16px; border-radius: var(--raio); background: var(--ambar-claro);
+    color: var(--ambar-escuro); font-size: .88rem; border-left: 4px solid var(--ambar); }
+
+  /* ---------- seções ---------- */
+  section { padding: 44px 0 0; }
+  h2 { margin: 0 0 6px; font-size: 1.3rem; font-weight: 900; text-transform: uppercase; color: var(--azul); }
+  h2 span { color: var(--ambar-escuro); }
+  .sub { margin: 0 0 18px; color: var(--texto-2); font-size: .93rem; max-width: 780px; }
+  .cartao { background: var(--cartao); border-radius: var(--raio); box-shadow: 0 1px 4px rgba(40,40,91,.06); }
+
+  /* ---------- mapa ---------- */
+  .mapa-grade { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 18px; }
+  .mapa-caixa { padding: 14px; position: relative; }
+  #mapa { width: 100%; height: auto; display: block; }
+  #mapa .uf { stroke: #fff; stroke-width: .8; transition: fill .15s; cursor: pointer; outline: none; }
+  #mapa .uf.vazia { cursor: default; }
+  #mapa .uf:not(.vazia):hover, #mapa .uf:not(.vazia):focus-visible { fill: #ffc12e !important; }
+  #mapa .uf.ativa { fill: var(--ambar) !important; stroke: var(--azul); stroke-width: 1.6; }
+  #mapa .rotulo { font: 900 9px Lato, sans-serif; fill: #fff; pointer-events: none; text-anchor: middle; dominant-baseline: central; }
+  #mapa .rotulo.escuro { fill: var(--azul); }
+  .legenda { display: flex; align-items: center; gap: 8px; font-size: .75rem; color: var(--texto-2); margin-top: 6px; }
+  .legenda i { display: inline-block; width: 120px; height: 10px; border-radius: 5px;
+    background: linear-gradient(90deg, #dcdcef, var(--azul)); }
+  .dica { position: absolute; pointer-events: none; background: var(--azul); color: #fff; padding: 6px 10px;
+    border-radius: 6px; font-size: .8rem; white-space: nowrap; opacity: 0; transition: opacity .1s; }
+
+  .painel { padding: 18px; display: flex; flex-direction: column; min-height: 100%; }
+  .painel h3 { margin: 0 0 2px; font-size: 1.05rem; font-weight: 900; color: var(--azul); text-transform: uppercase; }
+  .painel .rot { font-size: .72rem; font-weight: 900; letter-spacing: .06em; text-transform: uppercase; color: var(--ambar-escuro); }
+  .painel p { margin: 4px 0 12px; font-size: .88rem; color: var(--texto-2); }
+  .lista-trib { list-style: none; margin: 0; padding: 0; overflow: auto; max-height: 470px; }
+  .lista-trib button { width: 100%; display: grid; grid-template-columns: 74px 1fr 34px; align-items: center; gap: 10px;
+    padding: 7px 8px; border: 0; background: none; border-radius: 6px; cursor: pointer; font: inherit; text-align: left; }
+  .lista-trib button:hover, .lista-trib button:focus-visible { background: var(--fundo); outline: none; }
+  .lista-trib .nome-trib { font-size: .74rem; color: var(--texto-2); grid-column: 2 / 4; margin-top: -4px; }
+  .barra { height: 8px; border-radius: 4px; background: var(--fundo); overflow: hidden; }
+  .barra i { display: block; height: 100%; background: var(--azul); border-radius: 4px; }
+  .qt { font-weight: 900; color: var(--azul); text-align: right; font-size: .9rem; }
+  .limpar { margin-top: 12px; align-self: flex-start; background: none; border: 0; color: var(--azul-2);
+    font: 700 .82rem Lato, sans-serif; cursor: pointer; padding: 0; text-decoration: underline; }
+
+  .selo { display: inline-block; padding: 2px 9px; border-radius: 999px; font-size: .74rem; font-weight: 900;
+    background: var(--ambar); color: var(--azul); white-space: nowrap; }
+  .selo.azul { background: var(--azul); color: #fff; }
+
+  /* ---------- filtros e tabela ---------- */
+  .filtros { padding: 16px 18px; display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 14px; }
+  .filtros label { display: block; font-size: .7rem; font-weight: 900; letter-spacing: .06em; text-transform: uppercase;
+    color: var(--azul); margin-bottom: 5px; }
+  .filtros input, .filtros select { width: 100%; padding: 9px 10px; border: 1px solid #cfd0dd; border-radius: 6px;
+    font: inherit; font-size: .95rem; background: #fff; color: var(--texto); }
+  .filtros input:focus, .filtros select:focus { outline: 2px solid var(--ambar); border-color: var(--ambar); }
+  .contagem { display: flex; justify-content: space-between; align-items: baseline; margin: 22px 0 10px; gap: 12px; flex-wrap: wrap; }
+  .contagem span { font-size: .85rem; color: var(--texto-2); }
+  table { width: 100%; border-collapse: collapse; }
+  thead th { text-align: left; font-size: .7rem; font-weight: 900; letter-spacing: .06em; text-transform: uppercase;
+    color: var(--azul); padding: 12px 14px; border-bottom: 2px solid var(--linha); background: #f8f8fb; }
+  thead th:first-child { border-top-left-radius: var(--raio); }
+  thead th:last-child { border-top-right-radius: var(--raio); }
+  tbody td { padding: 11px 14px; border-bottom: 1px solid var(--linha); font-size: .92rem; vertical-align: middle; }
+  tbody tr:last-child td { border-bottom: 0; }
+  tbody tr:hover { background: #fafafd; }
+  td.nome { font-weight: 700; color: var(--azul); }
+  td a { color: var(--azul-2); word-break: break-all; }
+  .nd { color: #9a9aac; font-style: italic; font-size: .85rem; }
+  .vazio { padding: 28px; text-align: center; color: var(--texto-2); }
+
+  /* ---------- PESA ---------- */
+  .pesa { display: grid; grid-template-columns: 1.4fr 1fr; gap: 18px; }
+  .pesa .texto { padding: 22px 24px; }
+  .pesa .texto p { margin: 0 0 12px; }
+  .pesa .texto p:last-child { margin-bottom: 0; }
+  .estrutura { padding: 22px 24px; background: var(--azul); color: #fff; border-radius: var(--raio); }
+  .estrutura h3 { margin: 0 0 12px; font-size: .8rem; font-weight: 900; letter-spacing: .06em; text-transform: uppercase; color: var(--ambar); }
+  .bloco { border: 1px solid rgba(255,255,255,.22); border-radius: 8px; padding: 10px 12px; margin-bottom: 10px; }
+  .bloco b { display: block; font-weight: 900; }
+  .bloco small { color: var(--lilas); font-size: .82rem; }
+  .trilhas { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 8px; }
+  .trilhas span { background: var(--ambar); color: var(--azul); border-radius: 6px; padding: 6px 4px; font-size: .74rem;
+    font-weight: 900; text-align: center; line-height: 1.2; }
+  .pilares { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 18px; }
+  .pilares .cartao { padding: 18px 20px; border-top: 4px solid var(--ambar); }
+  .pilares h3 { margin: 0 0 6px; font-size: .95rem; font-weight: 900; color: var(--azul); }
+  .pilares p { margin: 0; font-size: .9rem; color: var(--texto-2); }
+  .fonte { font-size: .8rem; color: var(--texto-2); margin-top: 12px; }
+
+  /* ---------- sobre ---------- */
+  .sobre { padding: 22px 24px; display: grid; grid-template-columns: 1fr 1fr; gap: 26px; }
+  .sobre h3 { margin: 0 0 8px; font-size: .95rem; font-weight: 900; color: var(--azul); text-transform: uppercase; }
+  .sobre p, .sobre li { font-size: .92rem; }
+  .sobre ul { padding-left: 18px; margin: 0; }
+  .partes { display: flex; gap: 8px; flex-wrap: wrap; margin: 4px 0 12px; }
+
+  footer { margin-top: 56px; background: var(--azul); color: var(--lilas); padding: 22px 0; font-size: .82rem; }
+  footer .conteudo { display: flex; flex-direction: column; gap: 6px; }
+  footer a { color: #fff; font-weight: 700; }
+
+  @media (max-width: 860px) {
+    .mapa-grade, .pesa, .sobre { grid-template-columns: 1fr; }
+    .pilares { grid-template-columns: 1fr; }
+    .filtros { grid-template-columns: 1fr 1fr; }
+    .filtros .busca { grid-column: 1 / -1; }
+    .numeros { grid-template-columns: 1fr 1fr; }
+    .numeros div:nth-child(3) { border-left: 0; }
+    .numeros div:nth-child(n+3) { border-top: 1px solid var(--linha); }
+    .lista-trib { max-height: 320px; }
+  }
+  @media (max-width: 640px) {
+    /* tabela vira cartões empilhados */
+    thead { display: none; }
+    table, tbody, tr, td { display: block; width: 100%; }
+    tbody tr { padding: 12px 14px; border-bottom: 1px solid var(--linha); }
+    tbody td { padding: 2px 0; border: 0; }
+    tbody td[data-r]::before { content: attr(data-r) ": "; font-size: .7rem; font-weight: 900; text-transform: uppercase;
+      letter-spacing: .05em; color: var(--texto-2); }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="conteudo">
+    <a class="voltar" href="https://www.antcbrasil.org.br/">← Voltar ao site da ANTC</a>
+    <p class="lema">ANTC · Auditor forte, controle externo forte</p>
+    <h1><span>Cadastro</span> Nacional<small>de Auditores de Controle Externo Certificados</small></h1>
+    <p class="chamada">Os auditores de controle externo dos Tribunais de Contas brasileiros que participam da certificação
+      internacional PESA, da INTOSAI Development Initiative (IDI), reunidos em um só lugar.</p>
+    <p class="chamada-2">Instituído pelo Acordo de Cooperação Técnica entre o TCU, o IRB e a ANTC, o Cadastro acompanha a
+      evolução das certificações nos Tribunais de Contas e aproxima os profissionais certificados em uma rede nacional.</p>
+    <div class="botoes">
+      <a class="btn btn-cheio" href="#mapa-sec">Consultar por tribunal</a>
+      <a class="btn btn-vazado" href="#pesa">O que é o PESA</a>
+    </div>
+  </div>
+</header>
+
+<main class="conteudo">
+  <div class="numeros" aria-label="Números do Cadastro">
+    <div><b id="n-aud">–</b><span>Auditores</span></div>
+    <div><b id="n-trib">–</b><span>Tribunais de Contas</span></div>
+    <div><b id="n-uf">–</b><span>Unidades da Federação</span></div>
+    <div><b id="n-turma">–</b><span>Turmas (inglês e espanhol)</span></div>
+  </div>
+  <p class="aviso"><strong>Dados preliminares.</strong> A relação abaixo reúne os auditores indicados às turmas do PESA
+    de 2025 e 2026 e está em validação junto ao IRB e ao TCU. Encontrou alguma incorreção? Escreva para a ANTC.</p>
+
+  <!-- ================= MAPA ================= -->
+  <section id="mapa-sec">
+    <h2><span>Tribunais</span> no mapa</h2>
+    <p class="sub">Selecione um estado para ver os Tribunais de Contas com auditores no Cadastro. A cor indica quantos
+      auditores cada unidade da federação reúne.</p>
+    <div class="mapa-grade">
+      <div class="cartao mapa-caixa">
+        <svg id="mapa" role="group" aria-label="Mapa do Brasil por unidade da federação"></svg>
+        <div class="legenda">menos <i></i> mais auditores</div>
+        <div class="dica" id="dica"></div>
+      </div>
+      <div class="cartao painel" id="painel" aria-live="polite"></div>
+    </div>
+  </section>
+
+  <!-- ================= LISTA ================= -->
+  <section id="lista">
+    <h2><span>Auditores</span> cadastrados</h2>
+    <div class="cartao filtros">
+      <div class="busca">
+        <label for="f-busca">Buscar</label>
+        <input id="f-busca" type="search" placeholder="Nome ou tribunal…" autocomplete="off">
+      </div>
+      <div>
+        <label for="f-trib">Tribunal de Contas</label>
+        <select id="f-trib"><option value="">Todos</option></select>
+      </div>
+      <div>
+        <label for="f-tipo">Tipo de auditoria</label>
+        <select id="f-tipo"><option value="">Todos</option></select>
+      </div>
+      <div>
+        <label for="f-turma">Turma</label>
+        <select id="f-turma"><option value="">Todas</option></select>
+      </div>
+    </div>
+    <div class="contagem"><h2 style="font-size:1rem;margin:0" id="titulo-lista">Todos os auditores</h2><span id="resumo"></span></div>
+    <div class="cartao">
+      <table>
+        <thead><tr><th>Auditor(a)</th><th>Tribunal</th><th>Turma</th><th>Tipo de auditoria</th></tr></thead>
+        <tbody id="corpo"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ================= PESA ================= -->
+  <section id="pesa">
+    <h2><span>O que é</span> o PESA</h2>
+    <p class="sub">Professional Education for SAI Auditors — educação profissional para auditores de Instituições Superiores de Controle.</p>
+    <div class="pesa">
+      <div class="cartao texto">
+        <p>O <strong>PESA</strong> é a principal iniciativa de educação profissional e certificação da
+          <strong>INTOSAI Development Initiative (IDI)</strong>, braço de desenvolvimento de capacidades da Organização
+          Internacional das Entidades Fiscalizadoras Superiores (INTOSAI). Seu propósito é formar uma
+          <em>massa crítica</em> de auditores do setor público com as competências necessárias para aplicar as
+          Normas Internacionais das ISCs (ISSAI) e, assim, contribuir para a profissionalização das próprias instituições.</p>
+        <p>O programa combina <strong>educação, avaliação e reflexão</strong> com a experiência de trabalho do auditor em sua
+          instituição. O conteúdo é baseado no <strong>Marco de Competências da INTOSAI</strong> para profissionais de auditoria
+          do setor público, com resultados de aprendizagem observáveis, mensuráveis e voltados à aplicação prática.</p>
+        <p>Cada participante cursa sete módulos e conta com um <strong>coach/mentor</strong> de sua instituição. Ao longo do
+          percurso, aplica o que aprendeu no portfólio de desenvolvimento profissional inicial (IPDP) e, ao final, submete-se a
+          uma <strong>avaliação baseada em competências</strong>, que conduz à certificação.</p>
+        <p>No Brasil, a articulação entre o <strong>TCU</strong> e o <strong>IRB</strong> abriu o programa, a partir de 2025,
+          aos auditores dos Tribunais de Contas estaduais e municipais, com turmas em inglês e em espanhol. Como as NBASP
+          brasileiras derivam das ISSAI, a certificação reforça diretamente a qualidade das auditorias realizadas no país.</p>
+      </div>
+      <aside class="estrutura" aria-label="Estrutura do programa">
+        <h3>Estrutura do programa</h3>
+        <div class="bloco"><b>2 módulos transversais</b><small>Valor e benefícios das ISCs e comportamento profissional no contexto das ISCs</small></div>
+        <div class="bloco"><b>5 módulos da trilha escolhida</b><small>Conhecimento aprofundado para conduzir auditorias de alta qualidade em uma das três trilhas:</small>
+          <div class="trilhas"><span>Conformidade</span><span>Financeira</span><span>Operacional</span></div>
+        </div>
+        <div class="bloco"><b>Portfólio e avaliação final</b><small>Aplicação no trabalho, acompanhada por coach/mentor, e exame por competências</small></div>
+      </aside>
+    </div>
+    <div class="pilares">
+      <div class="cartao"><h3>Padrão internacional</h3><p>Os resultados de aprendizagem seguem as ISSAI e o Marco de Competências
+        da INTOSAI, a mesma base adotada por ISCs de todo o mundo.</p></div>
+      <div class="cartao"><h3>Capacidade institucional</h3><p>Cada auditor certificado leva para seu Tribunal práticas de
+        auditoria alinhadas às normas e atua como multiplicador do conhecimento.</p></div>
+      <div class="cartao"><h3>Reconhecimento profissional</h3><p>A certificação distingue o auditor de controle externo como
+        profissional qualificado em âmbito internacional.</p></div>
+    </div>
+    <p class="fonte">Fonte: <a href="https://idi.no/our-work/initiative/pesa/" target="_blank" rel="noopener">IDI — PESA, a Professional
+      Qualification for SAI Auditors</a>.</p>
+  </section>
+
+  <!-- ================= SOBRE ================= -->
+  <section id="sobre">
+    <h2><span>Sobre</span> o Cadastro</h2>
+    <div class="cartao sobre">
+      <div>
+        <h3>Acordo de Cooperação Técnica</h3>
+        <div class="partes"><span class="selo azul">TCU</span><span class="selo azul">IRB</span><span class="selo">ANTC</span></div>
+        <p>O Tribunal de Contas da União, o Instituto Rui Barbosa e a ANTC celebraram acordo para viabilizar, incentivar e
+          fortalecer a participação dos auditores de controle externo dos Tribunais de Contas Estaduais e Municipais no PESA.
+          Pelo acordo, cabe à ANTC <strong>organizar, manter e atualizar o Cadastro Nacional de Auditores de Controle Externo
+          Certificados</strong>, em articulação com o TCU e o IRB.</p>
+      </div>
+      <div>
+        <h3>Para que serve</h3>
+        <ul>
+          <li>Acompanhar a evolução das certificações nos Tribunais de Contas brasileiros;</li>
+          <li>Dar reconhecimento profissional aos auditores certificados;</li>
+          <li>Estimular uma rede colaborativa nacional de auditores certificados;</li>
+          <li>Incentivar a atuação dos certificados como multiplicadores do conhecimento.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="conteudo">
+    <span>© <span id="ano">2026</span> ANTC. Cadastro mantido em cooperação com o TCU e o IRB.</span>
+    <span>Dados atualizados em <span id="atualizado">–</span>.</span>
+    <span><a href="https://www.antcbrasil.org.br/">← Voltar ao site da ANTC</a></span>
+  </div>
+</footer>
+
+<script src="mapa.js"></script>
+<script src="dados.js"></script>
+<script>
+(() => {
+  const D = window.CADASTRO, M = window.MAPA_BR;
+  const $ = s => document.querySelector(s);
+  const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const semAcento = s => String(s ?? "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+
+  // Os nomes chegam da planilha como foram digitados (vários em CAIXA ALTA).
+  // Só reescreve nomes inteiros em maiúsculas ou minúsculas; grafias mistas ("McDonald") são mantidas.
+  const PARTICULAS = new Set(["de", "da", "do", "das", "dos", "e"]);
+  function formatarNome(nome) {
+    if (nome !== nome.toUpperCase() && nome !== nome.toLowerCase()) return nome;
+    return nome.toLowerCase().split(" ").map((p, i) =>
+      i > 0 && PARTICULAS.has(p) ? p
+        : p.replace(/(^|[-'’])(\p{L})/gu, (_, sep, l) => sep + l.toUpperCase())  // Ana-Maria, D'Ávila
+    ).join(" ");
+  }
+
+  const trib = Object.fromEntries(D.tribunais.map(t => [t.sigla, t]));
+  const auditores = D.auditores.map(a => ({ ...a, nomeFmt: formatarNome(a.nome), uf: trib[a.tribunal].uf }))
+    .sort((a, b) => a.nomeFmt.localeCompare(b.nomeFmt, "pt-BR"));
+  const TIPO_ND = "Não informado";
+
+  // contagens
+  const porTrib = {}, porUF = {};
+  auditores.forEach(a => { porTrib[a.tribunal] = (porTrib[a.tribunal] || 0) + 1; porUF[a.uf] = (porUF[a.uf] || 0) + 1; });
+  const maxUF = Math.max(...Object.values(porUF)), maxTrib = Math.max(...Object.values(porTrib));
+
+  $("#n-aud").textContent = auditores.length;
+  $("#n-trib").textContent = Object.keys(porTrib).length;
+  $("#n-uf").textContent = Object.keys(porUF).length;
+  $("#n-turma").textContent = Object.keys(D.turmas).length;
+  const [ano, mes] = D.atualizado.split("-");
+  $("#atualizado").textContent = new Date(+ano, +mes - 1).toLocaleDateString("pt-BR", { month: "long", year: "numeric" });
+  $("#ano").textContent = new Date().getFullYear();
+
+  // ---------- estado da interface ----------
+  const estado = { uf: "", trib: "", tipo: "", turma: "", busca: "" };
+
+  // ---------- mapa ----------
+  const svg = $("#mapa"), NS = "http://www.w3.org/2000/svg";
+  svg.setAttribute("viewBox", `0 0 ${M.largura} ${M.altura}`);
+  const mistura = t => { // #dcdcef -> #28285b
+    const a = [0xdc, 0xdc, 0xef], b = [0x28, 0x28, 0x5b];
+    return `rgb(${a.map((v, i) => Math.round(v + (b[i] - v) * t)).join(",")})`;
+  };
+  const corUF = uf => porUF[uf] ? mistura(0.15 + 0.85 * Math.sqrt(porUF[uf] / maxUF)) : "#ececf4";
+  const dica = $("#dica"), caixa = svg.parentElement;
+
+  Object.entries(M.estados).forEach(([uf, e]) => {
+    const p = document.createElementNS(NS, "path");
+    p.setAttribute("d", e.d);
+    p.setAttribute("class", "uf" + (porUF[uf] ? "" : " vazia"));
+    p.setAttribute("fill", corUF(uf));
+    p.dataset.uf = uf;
+    const rotulo = `${e.nome}: ${porUF[uf] ? porUF[uf] + " auditor" + (porUF[uf] > 1 ? "es" : "") : "sem auditores no Cadastro"}`;
+    p.setAttribute("aria-label", rotulo);
+    if (porUF[uf]) { p.setAttribute("tabindex", "0"); p.setAttribute("role", "button"); }
+    p.addEventListener("mousemove", ev => {
+      const r = caixa.getBoundingClientRect();
+      dica.textContent = rotulo; dica.style.opacity = 1;
+      dica.style.left = Math.min(ev.clientX - r.left + 12, r.width - dica.offsetWidth - 4) + "px";
+      dica.style.top = (ev.clientY - r.top - 34) + "px";
+    });
+    p.addEventListener("mouseleave", () => dica.style.opacity = 0);
+    const escolher = () => porUF[uf] && selecionarUF(estado.uf === uf ? "" : uf);
+    p.addEventListener("click", escolher);
+    p.addEventListener("keydown", ev => (ev.key === "Enter" || ev.key === " ") && (ev.preventDefault(), escolher()));
+    svg.appendChild(p);
+  });
+  // siglas sobre os estados com auditores (exceto os muito pequenos, que ficam só com a dica)
+  const PEQUENOS = new Set(["DF", "SE", "AL", "RN", "PB", "ES", "RJ"]);
+  Object.entries(M.estados).forEach(([uf, e]) => {
+    if (!porUF[uf] || PEQUENOS.has(uf)) return;
+    const t = document.createElementNS(NS, "text");
+    t.setAttribute("x", e.x); t.setAttribute("y", e.y);
+    t.setAttribute("class", "rotulo" + (porUF[uf] / maxUF < 0.3 ? " escuro" : ""));
+    t.textContent = uf;
+    svg.appendChild(t);
+  });
+  // o DF é minúsculo na escala do país: marcador clicável com chamada
+  const df = M.estados.DF;
+  if (df && porUF.DF) {
+    const g = document.createElementNS(NS, "g");
+    g.innerHTML = `<circle class="uf" data-uf="DF" cx="${df.x}" cy="${df.y}" r="10" fill="${corUF("DF")}" stroke="#fff" stroke-width="1.5" tabindex="0" role="button" aria-label="Distrito Federal: ${porUF.DF} auditores"/>
+      <text class="rotulo" x="${df.x}" y="${df.y}">DF</text>`;
+    const c = g.querySelector("circle");
+    c.addEventListener("click", () => selecionarUF(estado.uf === "DF" ? "" : "DF"));
+    c.addEventListener("keydown", ev => (ev.key === "Enter" || ev.key === " ") && (ev.preventDefault(), selecionarUF(estado.uf === "DF" ? "" : "DF")));
+    svg.appendChild(g);
+  }
+
+  // ---------- painel lateral ----------
+  function linhaTrib(t) {
+    return `<li><button type="button" data-trib="${esc(t.sigla)}" title="Ver auditores do ${esc(t.nome)}">
+      <span class="selo">${esc(t.sigla)}</span>
+      <span class="barra"><i style="width:${(porTrib[t.sigla] / maxTrib * 100).toFixed(1)}%"></i></span>
+      <span class="qt">${porTrib[t.sigla]}</span>
+      <span class="nome-trib">${esc(t.nome)}</span></button></li>`;
+  }
+  function desenharPainel() {
+    const p = $("#painel");
+    const lista = D.tribunais.filter(t => porTrib[t.sigla] && (!estado.uf || t.uf === estado.uf))
+      .sort((a, b) => porTrib[b.sigla] - porTrib[a.sigla] || a.sigla.localeCompare(b.sigla));
+    if (estado.uf) {
+      const nome = M.estados[estado.uf].nome;
+      p.innerHTML = `<span class="rot">${esc(estado.uf)}</span><h3>${esc(nome)}</h3>
+        <p>${porUF[estado.uf]} auditor${porUF[estado.uf] > 1 ? "es" : ""} em ${lista.length} Tribuna${lista.length > 1 ? "is" : "l"} de Contas. Clique em um tribunal para ver a lista.</p>
+        <ul class="lista-trib">${lista.map(linhaTrib).join("")}</ul>
+        <button type="button" class="limpar" id="limpar-uf">← Ver todos os estados</button>`;
+      $("#limpar-uf").onclick = () => selecionarUF("");
+    } else {
+      p.innerHTML = `<span class="rot">Brasil</span><h3>Tribunais de Contas</h3>
+        <p>Auditores por tribunal. Clique em um tribunal para ver a lista ou selecione um estado no mapa.</p>
+        <ul class="lista-trib">${lista.map(linhaTrib).join("")}</ul>`;
+    }
+    p.querySelectorAll("[data-trib]").forEach(b => b.onclick = () => {
+      estado.trib = b.dataset.trib; $("#f-trib").value = estado.trib;
+      desenharLista();
+      $("#lista").scrollIntoView({ behavior: "smooth" });
+    });
+  }
+  function selecionarUF(uf) {
+    estado.uf = uf;
+    if (uf && estado.trib && trib[estado.trib].uf !== uf) { estado.trib = ""; $("#f-trib").value = ""; }
+    svg.querySelectorAll(".uf").forEach(el => el.classList.toggle("ativa", el.dataset.uf === uf));
+    desenharPainel(); desenharLista();
+  }
+
+  // ---------- filtros ----------
+  const opc = (sel, pares) => sel.insertAdjacentHTML("beforeend", pares.map(([v, r]) => `<option value="${esc(v)}">${esc(r)}</option>`).join(""));
+  opc($("#f-trib"), D.tribunais.filter(t => porTrib[t.sigla]).map(t => [t.sigla, `${t.sigla} (${porTrib[t.sigla]})`]));
+  opc($("#f-tipo"), [...new Set(auditores.map(a => a.tipo || TIPO_ND))].sort().map(t => [t, t]));
+  opc($("#f-turma"), Object.entries(D.turmas));
+  $("#f-busca").addEventListener("input", e => { estado.busca = e.target.value; desenharLista(); });
+  $("#f-trib").addEventListener("change", e => {
+    estado.trib = e.target.value;
+    if (estado.trib && estado.uf && trib[estado.trib].uf !== estado.uf) selecionarUF(trib[estado.trib].uf); else desenharLista();
+  });
+  $("#f-tipo").addEventListener("change", e => { estado.tipo = e.target.value; desenharLista(); });
+  $("#f-turma").addEventListener("change", e => { estado.turma = e.target.value; desenharLista(); });
+
+  // ---------- lista ----------
+  function desenharLista() {
+    const q = semAcento(estado.busca.trim());
+    const vis = auditores.filter(a =>
+      (!estado.uf || a.uf === estado.uf) &&
+      (!estado.trib || a.tribunal === estado.trib) &&
+      (!estado.tipo || (a.tipo || TIPO_ND) === estado.tipo) &&
+      (!estado.turma || a.turma === estado.turma) &&
+      (!q || semAcento(`${a.nome} ${a.tribunal} ${trib[a.tribunal].nome}`).includes(q)));
+    $("#titulo-lista").textContent = estado.trib ? trib[estado.trib].nome
+      : estado.uf ? `Auditores — ${M.estados[estado.uf].nome}` : "Todos os auditores";
+    const nTrib = new Set(vis.map(a => a.tribunal)).size;
+    $("#resumo").textContent = `${vis.length} auditor${vis.length === 1 ? "" : "es"} · ${nTrib} tribuna${nTrib === 1 ? "l" : "is"}`;
+    $("#corpo").innerHTML = vis.length ? vis.map(a => `<tr>
+        <td class="nome">${esc(a.nomeFmt)}</td>
+        <td data-r="Tribunal"><span class="selo" title="${esc(trib[a.tribunal].nome)}">${esc(a.tribunal)}</span></td>
+        <td data-r="Turma">${esc(D.turmas[a.turma])}</td>
+        <td data-r="Tipo">${a.tipo ? esc(a.tipo) : '<span class="nd">não informado</span>'}</td></tr>`).join("")
+      : `<tr><td colspan="4" class="vazio">Nenhum auditor encontrado com esses filtros.</td></tr>`;
+  }
+
+  desenharPainel(); desenharLista();
+})();
+</script>
+</body>
+</html>
