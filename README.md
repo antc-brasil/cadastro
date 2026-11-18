@@ -20,7 +20,7 @@ A planilha pertence à conta Google institucional da ANTC (Workspace `antcbrasil
 
 | Aba | Conteúdo | Publicada? |
 |---|---|---|
-| **Controle** | Todos os auditores: nome, tribunal, turma, tipo, ano de certificação, **situação** (Em formação, Vigente, Expirada), última verificação e observações | Não |
+| **Controle** | Todos os auditores: nome, tribunal, turma, tipo, **situação** (Em formação, Vigente, Expirada), ano de certificação, última verificação e observações | Não |
 | **Publicação** | Fórmula `QUERY` sobre a Controle: só as 4 colunas públicas e só as linhas **Vigente**. Não editar | Sim, como CSV |
 | **Listas** | Siglas dos 33 Tribunais de Contas, turmas, tipos e situações que alimentam as listas suspensas | Não |
 

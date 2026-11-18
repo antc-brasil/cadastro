@@ -182,8 +182,7 @@
     <a class="voltar" href="https://www.antcbrasil.org.br/">← Voltar ao site da ANTC</a>
     <p class="lema">ANTC · Auditor forte, controle externo forte</p>
     <h1><span>Cadastro</span> Nacional<small>de Auditores de Controle Externo Certificados</small></h1>
-    <p class="chamada">Os auditores de controle externo dos Tribunais de Contas brasileiros com certificação internacional
-      PESA vigente, concedida pela INTOSAI Development Initiative (IDI), reunidos em um só lugar.</p>
+    <p class="chamada">Cadastro dos Auditores de Controle Externo com certificação internacional Professional Education for SAI Auditors (PESA), concedida pela INTOSAI Development Initiative (IDI).</p>
     <p class="chamada-2">Instituído pelo Acordo de Cooperação Técnica entre o TCU, o IRB e a ANTC, o Cadastro acompanha a
       evolução das certificações nos Tribunais de Contas e aproxima os profissionais certificados em uma rede nacional.</p>
     <div class="botoes">
@@ -200,15 +199,15 @@
     <div><b id="n-uf">–</b><span>Unidades da Federação</span></div>
     <div><b id="n-turma">–</b><span>Turmas de origem</span></div>
   </div>
-  <p class="aviso"><strong>Somente certificações vigentes.</strong> Constam do Cadastro os auditores com certificação PESA
+  <p class="aviso"><strong>Somente certificações vigentes.</strong> Constam do Cadastro os Auditores de Controle Externo com certificação PESA
     vigente, confirmada pela ANTC em articulação com o TCU e o IRB. A manutenção da certificação exige formação continuada
     anual, conforme a política da IDI. Encontrou alguma incorreção? Escreva para a ANTC.</p>
 
   <!-- ================= MAPA ================= -->
   <section id="mapa-sec">
     <h2><span>Tribunais</span> no mapa</h2>
-    <p class="sub">Selecione um estado para ver os Tribunais de Contas com auditores no Cadastro. A cor indica quantos
-      auditores cada unidade da federação reúne.</p>
+    <p class="sub">Selecione um estado para ver os Tribunais de Contas com Auditores de Controle Externo no Cadastro. A cor indica quantos
+      Auditores de Controle Externo cada unidade da federação reúne.</p>
     <div class="mapa-grade">
       <div class="cartao mapa-caixa">
         <svg id="mapa" role="group" aria-label="Mapa do Brasil por unidade da federação"></svg>
@@ -284,7 +283,7 @@
         da INTOSAI, a mesma base adotada por ISCs de todo o mundo.</p></div>
       <div class="cartao"><h3>Capacidade institucional</h3><p>Cada auditor certificado leva para seu Tribunal práticas de
         auditoria alinhadas às normas e atua como multiplicador do conhecimento.</p></div>
-      <div class="cartao"><h3>Reconhecimento profissional</h3><p>A certificação distingue o auditor de controle externo como
+      <div class="cartao"><h3>Reconhecimento profissional</h3><p>A certificação distingue o Auditor de Controle Externo como
         profissional qualificado em âmbito internacional.</p></div>
     </div>
     <p class="fonte">Fonte: <a href="https://idi.no/our-work/initiative/pesa/" target="_blank" rel="noopener">IDI — PESA, a Professional
@@ -299,7 +298,7 @@
         <h3>Acordo de Cooperação Técnica</h3>
         <div class="partes"><span class="selo azul">TCU</span><span class="selo azul">IRB</span><span class="selo">ANTC</span></div>
         <p>O Tribunal de Contas da União, o Instituto Rui Barbosa e a ANTC celebraram acordo para viabilizar, incentivar e
-          fortalecer a participação dos auditores de controle externo dos Tribunais de Contas Estaduais e Municipais no PESA.
+          fortalecer a participação dos Auditores de Controle Externo dos Tribunais de Contas Estaduais e Municipais no PESA.
           Pelo acordo, cabe à ANTC <strong>organizar, manter e atualizar o Cadastro Nacional de Auditores de Controle Externo
           Certificados</strong>, em articulação com o TCU e o IRB.</p>
       </div>
@@ -443,7 +442,7 @@
       p.innerHTML = `<span class="rot">Brasil</span><h3>Tribunais de Contas</h3><p>${VAZIO}</p>`;
     } else {
       p.innerHTML = `<span class="rot">Brasil</span><h3>Tribunais de Contas</h3>
-        <p>Auditores por tribunal. Clique em um tribunal para ver a lista ou selecione um estado no mapa.</p>
+        <p>Auditores de Controle Externo por tribunal. Clique em um tribunal para ver a lista ou selecione um estado no mapa.</p>
         <ul class="lista-trib">${lista.map(linhaTrib).join("")}</ul>`;
     }
     p.querySelectorAll("[data-trib]").forEach(b => b.onclick = () => {
