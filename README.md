@@ -4,8 +4,7 @@ Página pública do Cadastro mantido pela ANTC, nos termos do Acordo de Coopera�
 TCU–IRB–ANTC (cláusula quinta), com os auditores dos Tribunais de Contas brasileiros
 com certificação **PESA** (Professional Education for SAI Auditors), da IDI/INTOSAI, **vigente**.
 
-Endereço previsto: **https://cadastro.antcbrasil.org.br/** (ajustar se for escolhido outro subdomínio).
-Endereço provisório: https://antc-brasil.github.io/cadastro/
+Endereço: **https://cadastro.antcbrasil.org.br/** (o antigo https://antc-brasil.github.io/cadastro/ redireciona para ele).
 
 - **Página:** `index.html` (layout, mapa e filtros) + `dados.js` (auditores) + `mapa.js` (contornos das UFs).
   Arquivos estáticos, sem servidor.
@@ -64,4 +63,7 @@ python3 -m http.server 8000
    | TXT   | *(o que o GitHub indicar no passo 4)* | *(valor informado pelo GitHub)* |
 
    Com os registros no ar: **Verify** na organização → *Custom domain* no repositório → **Enforce HTTPS**.
-6. **Site da ANTC:** botão ou banner "Cadastro Nacional de Auditores Certificados" com link para a página.
+
+   Situação em 18/11/2026: CNAME criado pela Trídia, *Custom domain* e HTTPS ativos. A verificação do domínio
+   na organização (registro TXT) ainda não foi feita; ela protege o subdomínio contra uso por outro repositório.
+6. **Site da ANTC:** botão ou banner "Cadastro Nacional de Auditores Certificados" com link para a página (pendente).
