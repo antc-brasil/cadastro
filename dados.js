@@ -1,8 +1,11 @@
 /* Cadastro Nacional de Auditores de Controle Externo Certificados: auditores com certificação vigente.
    Gerado por ferramentas/gerar_dados.py a partir da planilha de controle. Não editar à mão. */
 window.CADASTRO = {
- "atualizado": "2026-11-17",
- "turmas": {},
+ "atualizado": "2026-11-18",
+ "turmas": {
+  "Inglês 2025": "Inglês 2025",
+  "Inglês 2026": "Inglês 2026"
+ },
  "tribunais": [
   {
    "sigla": "TCDF",
@@ -170,5 +173,162 @@ window.CADASTRO = {
    "nome": "Tribunal de Contas da União"
   }
  ],
- "auditores": []
+ "auditores": [
+  {
+   "nome": "Alexandre Violato Peyerl",
+   "tribunal": "TCE-SP",
+   "turma": "Inglês 2025",
+   "tipo": "Conformidade"
+  },
+  {
+   "nome": "Aline Selau Dall'Igna",
+   "tribunal": "TCE-RS",
+   "turma": "Inglês 2025",
+   "tipo": "Financeira"
+  },
+  {
+   "nome": "Amanda Munhoz Buba",
+   "tribunal": "TCE-PR",
+   "turma": "Inglês 2025",
+   "tipo": "Operacional"
+  },
+  {
+   "nome": "Ana Carolina Maia de Freitas",
+   "tribunal": "TCU",
+   "turma": "Inglês 2025",
+   "tipo": "Conformidade"
+  },
+  {
+   "nome": "Caleb Gonçalves Laurenço Filho",
+   "tribunal": "TCM-GO",
+   "turma": "Inglês 2025",
+   "tipo": "Conformidade"
+  },
+  {
+   "nome": "Crislayne Maria Lima Amaral Nogueira Cavalcante de Moraes",
+   "tribunal": "TCE-PR",
+   "turma": "Inglês 2025",
+   "tipo": "Conformidade"
+  },
+  {
+   "nome": "Fabiano N. G. Fernandes",
+   "tribunal": "TCU",
+   "turma": "Inglês 2025",
+   "tipo": "Operacional"
+  },
+  {
+   "nome": "Fábio Augusto Silva Santos",
+   "tribunal": "TCE-SE",
+   "turma": "Inglês 2025",
+   "tipo": "Financeira"
+  },
+  {
+   "nome": "Fernando Correia Riserio do Bonfim",
+   "tribunal": "TCM-SP",
+   "turma": "Inglês 2025",
+   "tipo": "Operacional"
+  },
+  {
+   "nome": "Gabriela Flávia Ribeiro Mendes",
+   "tribunal": "TCM-BA",
+   "turma": "Inglês 2025",
+   "tipo": "Conformidade"
+  },
+  {
+   "nome": "George Lucas Lisboa da Silva",
+   "tribunal": "TCE-PB",
+   "turma": "Inglês 2025",
+   "tipo": "Operacional"
+  },
+  {
+   "nome": "Gidel Matos Braz",
+   "tribunal": "TCE-SE",
+   "turma": "Inglês 2025",
+   "tipo": "Conformidade"
+  },
+  {
+   "nome": "Giovanna Araújo Felix Maraviesk",
+   "tribunal": "TCE-MS",
+   "turma": "Inglês 2025",
+   "tipo": "Conformidade"
+  },
+  {
+   "nome": "Giovanni Garcia Mannarino",
+   "tribunal": "TCU",
+   "turma": "Inglês 2026",
+   "tipo": "Operacional"
+  },
+  {
+   "nome": "Gustavo Felipe Ripper Chalreo T de Souza",
+   "tribunal": "TCM-SP",
+   "turma": "Inglês 2025",
+   "tipo": "Financeira"
+  },
+  {
+   "nome": "Juliana Medeiros das Neves Moser",
+   "tribunal": "TCU",
+   "turma": "Inglês 2025",
+   "tipo": "Financeira"
+  },
+  {
+   "nome": "Leandro Menezes Rodrigues",
+   "tribunal": "TCE-PR",
+   "turma": "Inglês 2025",
+   "tipo": "Financeira"
+  },
+  {
+   "nome": "Lorhan Henrique Kavrokov Vieira Costa",
+   "tribunal": "TCE-SP",
+   "turma": "Inglês 2025",
+   "tipo": "Financeira"
+  },
+  {
+   "nome": "Marcelo da Silva Sousa",
+   "tribunal": "TCU",
+   "turma": "Inglês 2025",
+   "tipo": "Financeira"
+  },
+  {
+   "nome": "Marcelo Victor Barbosa Xavier",
+   "tribunal": "TCE-PE",
+   "turma": "Inglês 2025",
+   "tipo": "Financeira"
+  },
+  {
+   "nome": "Marcos Rezende",
+   "tribunal": "TCU",
+   "turma": "Inglês 2025",
+   "tipo": "Operacional"
+  },
+  {
+   "nome": "Monica Cristina dos Anjos Acendino",
+   "tribunal": "TCE-MT",
+   "turma": "Inglês 2025",
+   "tipo": "Conformidade"
+  },
+  {
+   "nome": "Monica Garcia Nardoni",
+   "tribunal": "TCE-MT",
+   "turma": "Inglês 2025",
+   "tipo": "Financeira"
+  },
+  {
+   "nome": "Robson Fernandes Soares",
+   "tribunal": "TCE-PR",
+   "turma": "Inglês 2025",
+   "tipo": "Financeira"
+  },
+  {
+   "nome": "Rômulo Pedrosa de Resende Silva",
+   "tribunal": "TCE-BA",
+   "turma": "Inglês 2025",
+   "tipo": "Financeira"
+  },
+  {
+   "nome": "Valéria Diniz de Miranda",
+   "tribunal": "TCE-CE",
+   "turma": "Inglês 2025",
+   "tipo": "Conformidade"
+  }
+ ]
 };
