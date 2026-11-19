@@ -1,7 +1,7 @@
 /* Cadastro Nacional de Auditores de Controle Externo Certificados: auditores com certificação vigente.
    Gerado por ferramentas/gerar_dados.py a partir da planilha de controle. Não editar à mão. */
 window.CADASTRO = {
- "atualizado": "2026-11-18",
+ "atualizado": "2026-11-19",
  "turmas": {
   "Inglês 2025": "Inglês 2025",
   "Inglês 2026": "Inglês 2026"
@@ -266,7 +266,7 @@ window.CADASTRO = {
   },
   {
    "nome": "Juliana Medeiros das Neves Moser",
-   "tribunal": "TCU",
+   "tribunal": "TCE-SC",
    "turma": "Inglês 2025",
    "tipo": "Financeira"
   },
